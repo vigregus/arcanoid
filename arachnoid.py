@@ -7,13 +7,16 @@ tk = Tk()
 tk.title('Game')
 tk.resizable(0,0)
 tk.wm_attributes('-topmost',1)
-
-canvas = Canvas(tk, width=500,height=400,highlightthickness=0)
+canvas = Canvas(tk, width=500, height=400, highlightthickness=0)
 canvas.pack()
-tk.update
+
+
+
+
+tk.update()
 
 class Ball:
-    def __init__(self, canvas, paddle, score, calor):
+    def __init__(self, canvas, paddle, score, color):
         self.canvas = canvas
         self.paddle = paddle
         self.score = score
@@ -24,8 +27,8 @@ class Ball:
         self.x = starts[0]
         self.y = -2
         self.canvas_height = self.canvas.winfo_height()
-        self.canvas_width = self.canvas.winfoO_width()
-        self.hit_bottom = false
+        self.canvas_width = self.canvas.winfo_width()
+        self.hit_bottom = False
 
     def hit_paddle(self, pos):
         paddle_pos = self.canvas.coords(self.paddle.id)
@@ -38,6 +41,11 @@ class Ball:
     def draw(self):
         self.canvas.move(self.id, self.x, self.y)
         pos = self.canvas.coords(self.id)
+        if pos[1] <= 0:
+
+            # задаём падение на следующем шаге = 2
+
+            self.y = 2
         if pos[3] >= self.canvas_height:
             self.hit_bottom = True
             canvas.create_text(250, 120, text='You lose', font=('Courier',30), fill='red')
@@ -61,13 +69,13 @@ class Paddle:
     	self.canvas.bind_all('<KeyPress-Right>',self.turn_right)
     	self.canvas.bind_all('<KeyPress-Left>',self.turn_left)
     	self.started = False
-    	self.canvas.bind_all('KeyPress-Return',self.start_game)
-
-    def turn_left(self, event):
-        self.x = -2
-
+    	self.canvas.bind_all('<KeyPress-Return>',self.start_game)
+		
     def turn_right(self, event):
         self.x = 2
+		
+    def turn_left(self, event):
+        self.x = -2
 
     def start_game(self, event):
         self.started = True
@@ -89,14 +97,20 @@ class Score:
     def hit(self):
         self.score += 1
         self.canvas.itemconfig(self.id,text=self.score)
+        
 score = Score(canvas,'green')
-paddle = Paddle(canvas, 'White')
-ball = Ball(canvas,paddle, score, 'red')
+paddle = Paddle(canvas, 'Black')
+ball = Ball(canvas,paddle, score, 'blue')
+#ball_1 = Ball(canvas,paddle, score, 'red')
+
+#while not ball.hit_bottom or not ball_1.hit_bottom:
 while not ball.hit_bottom:
     if paddle.started == True:
-        ball.draw()
-        paddle.draw()
+		ball.draw()
+		#ball_1.draw()	
+		paddle.draw()
     tk.update_idletasks()
     tk.update()
     time.sleep(0.01)
 time.sleep(3)
+
