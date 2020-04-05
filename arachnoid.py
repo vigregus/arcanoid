@@ -3,8 +3,9 @@ from tkinter import *
 import time
 import random
 from random import randint
-ball_count = 5s0
+ball_count = 50
 ball_array = []
+block_line_count = 6
 block_array = []
 heightWindow = 400
 widthWindow = 900
@@ -15,7 +16,7 @@ color_array = ['red','Blue','green','white','orange','black','brown','yellow','p
 tk = Tk()
 tk.title('Game')
 tk.resizable(0,0)
-tk.wm_attributes('-topmost',1)
+#tk.wm_attributes('-topmost',1)
 canvas = Canvas(tk, width=widthWindow, height=heightWindow, highlightthickness=0)
 canvas.pack()
 
@@ -29,6 +30,7 @@ class Ball:
         self.canvas = canvas
         self.paddle = paddle
         self.score = score
+        self.block = score
         random.shuffle(color_array)
         self.id = canvas.create_oval(10,10,25,25,fill=color_array[0])
         positionX = [randint(0,widthWindow-30) for x in range(ball_count)]
@@ -54,23 +56,25 @@ class Ball:
                 return True
         return False
 
+
     def draw(self):
         self.canvas.move(self.id, self.x, self.y)
         pos = self.canvas.coords(self.id)
         if pos[1] <= 0:
-
-            # задаём падение на следующем шаге = 2
-
             self.y = 2
         if pos[3] >= self.canvas_height:
             self.hit_bottom = True
             canvas.create_text(250, 120, text='You lose', font=('Courier',30), fill='red')
         if self.hit_paddle(pos) == True:
             self.y = -2
+        if self.hit_block(pos) == True:
+            #canvas.delete()
+            self.y = 2
         if pos[0] <= 0:
             self.x = 2
         if pos[2] >= self.canvas_width:
             self.x = -2
+
 
 class Paddle:
     def __init__(self, canvas, color):
@@ -117,16 +121,21 @@ class Score:
         self.canvas.itemconfig(self.id,text=self.score)
 
 class Block:
-    def __init__(self,canvas,posX,posY):
-        random.shuffle(color_array)
+    def __init__(self, canvas, posX, posY):
         self.canvas = canvas
-        self.id = canvas.create_rectangle(posX,posY,20,10,fill=color_array[0])
+        random.shuffle(color_array)
+        self.id = canvas.create_rectangle(posX,posY,posX+40,posY+10,fill=color_array[0])
+#    def destroy(self):
 
 score = Score(canvas,'green')
 paddle = Paddle(canvas, 'Black')
 
+for i in range(widthWindow%40):
+    for j in range(block_line_count):
+        block_array.append(Block(canvas,i*50,j*15))
+
 for i in range(ball_count):
-    ball_array.append(Ball(canvas,paddle, score, 'blue'))
+    ball_array.append(Ball(canvas, paddle, score, 'blue'))
 
 
 while not ball_array[1].hit_bottom :
