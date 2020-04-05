@@ -2,12 +2,21 @@
 from tkinter import *
 import time
 import random
+from random import randint
+ball_count = 5s0
+ball_array = []
+block_array = []
+heightWindow = 400
+widthWindow = 900
+positionX = []
+positionY = []
+color_array = ['red','Blue','green','white','orange','black','brown','yellow','purple','gray','pink']
 
 tk = Tk()
 tk.title('Game')
 tk.resizable(0,0)
 tk.wm_attributes('-topmost',1)
-canvas = Canvas(tk, width=500, height=400, highlightthickness=0)
+canvas = Canvas(tk, width=widthWindow, height=heightWindow, highlightthickness=0)
 canvas.pack()
 
 
@@ -20,12 +29,19 @@ class Ball:
         self.canvas = canvas
         self.paddle = paddle
         self.score = score
-        self.id = canvas.create_oval(10,10,25,25,fill=color)
-        self.canvas.move(self.id,245,100)
-        starts = [-2,-1,1,2]
+        random.shuffle(color_array)
+        self.id = canvas.create_oval(10,10,25,25,fill=color_array[0])
+        positionX = [randint(0,widthWindow-30) for x in range(ball_count)]
+        positionY = [randint(0,heightWindow-30) for x in range(ball_count)]
+        random.shuffle(positionX)
+        random.shuffle(positionY)
+        self.canvas.move(self.id,positionX[0],positionY[0])
+        starts = [-3,-2,-1,1,2,3]
         random.shuffle(starts)
         self.x = starts[0]
-        self.y = -2
+        direction = [-2,2]
+        random.shuffle(direction)
+        self.y = direction[0]
         self.canvas_height = self.canvas.winfo_height()
         self.canvas_width = self.canvas.winfo_width()
         self.hit_bottom = False
@@ -59,21 +75,23 @@ class Ball:
 class Paddle:
     def __init__(self, canvas, color):
     	self.canvas = canvas
-    	self.id = canvas.create_rectangle(0,0,100,10,fill=color)
-    	start_1 = [40,60,90,120,150,180,200]
+    	self.id = canvas.create_rectangle(0,0,widthWindow,10,fill=color)
+    	#start_1 = [40,60,90,120,150,180,200]
+    	start_1 = [0,0]
     	random.shuffle(start_1)
     	self.starting_point_x = start_1[0]
-    	self.canvas.move(self.id, self.starting_point_x, 300)
+    	self.canvas.move(self.id, self.starting_point_x, 390)
     	self.x = 0
     	self.canvas_width = self.canvas.winfo_width()
     	self.canvas.bind_all('<KeyPress-Right>',self.turn_right)
     	self.canvas.bind_all('<KeyPress-Left>',self.turn_left)
     	self.started = False
     	self.canvas.bind_all('<KeyPress-Return>',self.start_game)
-		
+#        self.canvas.bind_all('<Escape>', exit)
+
     def turn_right(self, event):
         self.x = 2
-		
+
     def turn_left(self, event):
         self.x = -2
 
@@ -92,25 +110,31 @@ class Score:
     def __init__(self,canvas,color):
         self.score = 0
         self.canvas = canvas
-        self.id = canvas.create_text(450,10,text=self.score,font=('Courier',15),fill=color)
+        self.id = canvas.create_text(widthWindow-50,10,text=self.score,font=('Courier',15),fill=color)
 
     def hit(self):
         self.score += 1
         self.canvas.itemconfig(self.id,text=self.score)
-        
+
+class Block:
+    def __init__(self,canvas,posX,posY):
+        random.shuffle(color_array)
+        self.canvas = canvas
+        self.id = canvas.create_rectangle(posX,posY,20,10,fill=color_array[0])
+
 score = Score(canvas,'green')
 paddle = Paddle(canvas, 'Black')
-ball = Ball(canvas,paddle, score, 'blue')
-#ball_1 = Ball(canvas,paddle, score, 'red')
 
-#while not ball.hit_bottom or not ball_1.hit_bottom:
-while not ball.hit_bottom:
+for i in range(ball_count):
+    ball_array.append(Ball(canvas,paddle, score, 'blue'))
+
+
+while not ball_array[1].hit_bottom :
     if paddle.started == True:
-		ball.draw()
-		#ball_1.draw()	
-		paddle.draw()
+        for i in range(ball_count):
+            ball_array[i].draw()
+        paddle.draw()
     tk.update_idletasks()
     tk.update()
-    time.sleep(0.01)
-time.sleep(3)
-
+    #time.sleep(0.01)
+#time.sleep(1)
