@@ -3,8 +3,10 @@ from tkinter import *
 import time
 import random
 from random import randint
-ball_count = 50
+ball_count = 100
 ball_array = []
+ball_diametr = 15
+ball_radius = ball_diametr//2
 block_line_count = 6
 block_array = []
 heightWindow = 400
@@ -26,13 +28,13 @@ canvas.pack()
 tk.update()
 
 class Ball:
-    def __init__(self, canvas, paddle, score, color):
+    def __init__(self, canvas, paddle,block, score, color):
         self.canvas = canvas
         self.paddle = paddle
         self.score = score
-        self.block = score
+        self.block = block
         random.shuffle(color_array)
-        self.id = canvas.create_oval(10,10,25,25,fill=color_array[0])
+        self.id = canvas.create_oval(10,10,10+ball_diametr,10+ball_diametr,fill=color_array[0])
         positionX = [randint(0,widthWindow-30) for x in range(ball_count)]
         positionY = [randint(0,heightWindow-30) for x in range(ball_count)]
         random.shuffle(positionX)
@@ -41,7 +43,7 @@ class Ball:
         starts = [-3,-2,-1,1,2,3]
         random.shuffle(starts)
         self.x = starts[0]
-        direction = [-2,2]
+        direction = [-3,-2,-1,1,2,3]
         random.shuffle(direction)
         self.y = direction[0]
         self.canvas_height = self.canvas.winfo_height()
@@ -56,6 +58,34 @@ class Ball:
                 return True
         return False
 
+    def hit_block_bottom(self, pos):
+        block_pos = self.canvas.coords(self.block.id)
+        if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
+            if pos[1] <= block_pos[3] and pos[1] >= block_pos[1]:
+                return True
+        return False
+
+    def hit_block_top(self, pos):
+        block_pos = self.canvas.coords(self.block.id)
+        if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
+            if pos[3] >= block_pos[1] and pos[3] <= block_pos[3]:
+                return True
+        return False
+
+    def hit_block_right(self, pos):
+        block_pos = self.canvas.coords(self.block.id)
+        if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
+            if pos[0] <= block_pos[2] and pos[0] >= block_pos[0]:
+                return True
+        return False
+
+    def hit_block_left(self, pos):
+        block_pos = self.canvas.coords(self.block.id)
+        if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
+            if pos[2] >= block_pos[0] and pos[2] <= block_pos[2]:
+                return True
+        return False
+
 
     def draw(self):
         self.canvas.move(self.id, self.x, self.y)
@@ -67,9 +97,15 @@ class Ball:
             canvas.create_text(250, 120, text='You lose', font=('Courier',30), fill='red')
         if self.hit_paddle(pos) == True:
             self.y = -2
-        if self.hit_block(pos) == True:
-            #canvas.delete()
+        if self.hit_block_bottom(pos) == True:
             self.y = 2
+            #block.deleteBlock()
+        if self.hit_block_top(pos) == True:
+            self.y = -2
+        if self.hit_block_right(pos) == True:
+            self.x = 2
+        if self.hit_block_left(pos) == True:
+            self.x = -2
         if pos[0] <= 0:
             self.x = 2
         if pos[2] >= self.canvas_width:
@@ -124,18 +160,28 @@ class Block:
     def __init__(self, canvas, posX, posY):
         self.canvas = canvas
         random.shuffle(color_array)
-        self.id = canvas.create_rectangle(posX,posY,posX+40,posY+10,fill=color_array[0])
+#        self.id = canvas.create_rectangle(posX,posY,posX+40,posY+10,fill=color_array[0])
+        self.id = canvas.create_rectangle(posX+100,posY+100,posX+180,posY+180,fill=color_array[0])
+
+    def deleteBlock(self):
+        #pos = self.canvas.coords(self.id)
+        self.canvas.delete(self)
+
+
+
 #    def destroy(self):
 
 score = Score(canvas,'green')
 paddle = Paddle(canvas, 'Black')
 
-for i in range(widthWindow%40):
-    for j in range(block_line_count):
-        block_array.append(Block(canvas,i*50,j*15))
+#for i in range(widthWindow%40):
+#    for j in range(block_line_count):
+#        block_array.append(Block(canvas,i*50,j*15))
+block = Block(canvas,50,50)
+
 
 for i in range(ball_count):
-    ball_array.append(Ball(canvas, paddle, score, 'blue'))
+    ball_array.append(Ball(canvas, paddle,block, score, 'blue'))
 
 
 while not ball_array[1].hit_bottom :
