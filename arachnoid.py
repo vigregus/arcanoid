@@ -1,9 +1,9 @@
-#! /usr/bin/python3
+
 from tkinter import *
 import time
 import random
 from random import randint
-ball_count = 100
+ball_count = 10
 ball_array = []
 ball_diametr = 15
 ball_radius = ball_diametr//2
@@ -62,6 +62,7 @@ class Ball:
         block_pos = self.canvas.coords(self.block.id)
         if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
             if pos[1] <= block_pos[3] and pos[1] >= block_pos[1]:
+                self.canvas.delete(self.block.id)
                 return True
         return False
 
@@ -70,6 +71,7 @@ class Ball:
         if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
             if pos[3] >= block_pos[1] and pos[3] <= block_pos[3]:
                 return True
+                self.canvas.delete(self.block.id)
         return False
 
     def hit_block_right(self, pos):
@@ -77,6 +79,7 @@ class Ball:
         if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
             if pos[0] <= block_pos[2] and pos[0] >= block_pos[0]:
                 return True
+                self.canvas.delete(self.block.id)
         return False
 
     def hit_block_left(self, pos):
@@ -84,6 +87,7 @@ class Ball:
         if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
             if pos[2] >= block_pos[0] and pos[2] <= block_pos[2]:
                 return True
+                self.canvas.delete(self.block.id)
         return False
 
 
@@ -99,7 +103,7 @@ class Ball:
             self.y = -2
         if self.hit_block_bottom(pos) == True:
             self.y = 2
-            #block.deleteBlock()
+            self.canvas.delete(block)
         if self.hit_block_top(pos) == True:
             self.y = -2
         if self.hit_block_right(pos) == True:
