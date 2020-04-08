@@ -3,7 +3,7 @@ from tkinter import *
 import time
 import random
 from random import randint
-ball_count = 50
+ball_count = 1
 ball_array = []
 ball_diametr = 15
 ball_radius = ball_diametr//2
@@ -55,9 +55,13 @@ class Ball:
         paddle_pos = self.canvas.coords(self.paddle.id)
         if pos[2] >= paddle_pos[0] and pos[0] <= paddle_pos[2]:
             if pos[3] >= paddle_pos[1] and pos[3] <= paddle_pos[3]:
-                self.score.hit()
                 return True
         return False
+
+    def deleteBlock(block):
+        block_array.remove(block)
+        self.canvas.delete(i[0].id)
+
 
     def hit_block_bottom(self, pos):
         for i in block_array:
@@ -65,6 +69,8 @@ class Ball:
             if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
                 if pos[1] <= block_pos[3] and pos[1] >= block_pos[1]:
                     self.canvas.delete(i[0].id)
+                    block_array.remove(i)
+                    self.score.hit()
                     return True
         return False
 
@@ -73,8 +79,10 @@ class Ball:
             block_pos = i[1]
             if pos[2]-ball_radius >= block_pos[0] and pos[0]+ball_radius <= block_pos[2]:
                 if pos[3] >= block_pos[1] and pos[3] <= block_pos[3]:
-                    return True
                     self.canvas.delete(i[0].id)
+                    block_array.remove(i)
+                    self.score.hit()
+                    return True
         return False
 
     def hit_block_right(self, pos):
@@ -82,8 +90,10 @@ class Ball:
             block_pos = i[1]
             if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
                 if pos[0] <= block_pos[2] and pos[0] >= block_pos[0]:
-                    return True
                     self.canvas.delete(i[0].id)
+                    block_array.remove(i)
+                    self.score.hit()
+                    return True
         return False
 
     def hit_block_left(self, pos):
@@ -91,8 +101,11 @@ class Ball:
             block_pos = i[1]
             if pos[3]-ball_radius >= block_pos[1] and pos[3]-ball_radius <= block_pos[3]:
                 if pos[2] >= block_pos[0] and pos[2] <= block_pos[2]:
-                    return True
+                    block_array.remove(i)
+                    self.score.hit()
                     self.canvas.delete(i[0].id)
+                    return True
+
         return False
 
 
@@ -123,9 +136,9 @@ class Ball:
 class Paddle:
     def __init__(self, canvas, color):
     	self.canvas = canvas
-    	self.id = canvas.create_rectangle(0,0,widthWindow,10,fill=color)
-    	#start_1 = [40,60,90,120,150,180,200]
-    	start_1 = [0,0]
+    	self.id = canvas.create_rectangle(0,0,100,10,fill=color)
+    	start_1 = [40,60,90,120,150,180,200]
+    	#start_1 = [0,0]
     	random.shuffle(start_1)
     	self.starting_point_x = start_1[0]
     	self.canvas.move(self.id, self.starting_point_x, 390)
@@ -162,7 +175,7 @@ class Score:
 
     def hit(self):
         self.score += 1
-        self.canvas.itemconfig(self.id,text=self.score)
+        self.canvas.itemconfig(self.id,text="Score: "+str(self.score))
 
 class Block:
     def __init__(self, canvas, posX, posY):
@@ -185,22 +198,22 @@ paddle = Paddle(canvas, 'Black')
 
 for i in range(widthWindow%40):
     for j in range(block_line_count):
-        block_array.append([Block(canvas,i*50,j*15),[i*50,j*15,i*50+40,j*15+10]])
+        block_array.append([Block(canvas,i*50,j*15+20),[i*50,j*15+20,i*50+40,j*15+30]])
         coords = [i*50,j*15,i*50+40,j*15+10]
         block_coords_array.append(coords)
-block = Block(canvas,50,50)
+
 
 
 for i in range(ball_count):
     ball_array.append(Ball(canvas, paddle, block_array, score, block_coords_array))
 
 
-while not ball_array[1].hit_bottom :
+while not ball_array[0].hit_bottom :
     if paddle.started == True:
         for i in range(ball_count):
             ball_array[i].draw()
         paddle.draw()
     tk.update_idletasks()
     tk.update()
-    #time.sleep(0.01)
-#time.sleep(1)
+    time.sleep(0.01)
+time.sleep(1)
